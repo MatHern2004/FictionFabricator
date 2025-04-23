@@ -1,0 +1,47 @@
+Structure:
+    declarations*=Declaration
+;
+
+Declaration:
+    CreateCharacter | EditCharacter | Setting | Check | Dialogue
+;
+
+CreateCharacter:
+    'name' title=STRING
+     personalities+=FeatureCharacteristic
+;
+
+FeatureCharacteristic:
+    'personality' characteristic=STRING ('=' value=INT)?
+;
+
+EditCharacter:
+    'edit' title=STRING
+;
+
+Setting:
+    setting=Destination | 'setting' setting=STRING
+    decisions*=Choice
+;
+
+Destination:
+    "boat"|"forest"|"mansion"
+;
+
+Choice:
+    'choice one''('first_choice=STRING')' '{' responses*=Response   
+    dialogue=Dialogue'}'
+    'choice two''('second_choice=STRING')' '{' responses*=Response  '}'  
+;
+
+Check:
+    'check''('name=STRING')'
+;
+
+Dialogue:
+    'say' dialogue=STRING
+;
+
+Response:
+    'response' response=STRING
+;
