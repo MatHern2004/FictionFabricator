@@ -1,17 +1,44 @@
+import sys
+import random
 from textx import metamodel_from_file
 from playsound import playsound
 
+tale_file = sys.argv[1]
 fiction_mm = metamodel_from_file('fictionfabricator.tx')
-fiction_model = fiction_mm.model_from_file('program1.tale')
+fiction_model = fiction_mm.model_from_file(tale_file)
 
+#Colors for Text
+RED = '\033[31m'
+GREEN = '\033[32m'
+YELLOW = '\033[33m'
+BLUE = '\033[34m'
+MAGENTA = '\033[35m'
+CYAN = '\033[36m'
+BLACK = '\033[30m'
+RESET = '\033[0m'
+
+state = {}
+
+def variablemap(variable, state):
+    selected_value = state[variable]
+    return selected_value
+
+def evaulate_variable(variable, state):
+    if variable in state:
+        return variablemap(variable, state)
+    else:
+        raise Exception(f"Variable '{variable}' is not defined")
+
+def check_bool(item):
+    if item == "true":
+        return True
+    else:
+        return False
 
 class Character:
     def __init__(self, name, personalities_list=None):
         self.name = name
-        self.personalities_list = personalities_list
-
-    def __str__(self):
-        return f"Your character's name is {self.name}."
+        self.personalities_list = personalities_list or []
 
 
 class FictionFabricator:
@@ -20,18 +47,27 @@ class FictionFabricator:
             if c.__class__.__name__ == "CreateCharacter":
                 name = c.title
                 main_character = Character(name)
-                print(f"Your character's name is {main_character.name}.")
-                print("Their Characteristics:")
+                print(f"Your character's name is {YELLOW}{main_character.name}{RESET}.")
+                print(f"{GREEN}Their Characteristics:{RESET}")
                 for index, personality in enumerate(c.personalities):
+                    state[personality.characteristic] = personality.value
                     if not index+1 == len(c.personalities):
-                        print(f"{personality.characteristic} with {personality.value} value points.")
+                        print(f"{RED}{personality.characteristic}{RESET} with {YELLOW}{personality.value}{RESET} value points.")
                     else:
-                         print(f"{personality.characteristic} with {personality.value} value points.")
+                         print(f"{RED}{personality.characteristic}{RESET} with {YELLOW}{personality.value}{RESET} value points.")
+                for index, item in enumerate(c.items):
+                    item.value = check_bool(item.value)
+                    state[item.gear] = item.value
+                    if item.value:
+                        print(f"{YELLOW}{name}{RESET} holds a(n) {GREEN}{item.gear}{RESET}.")
+                    else:
+                        print(f"{YELLOW}{name}{RESET} does not hold a(n) {GREEN}{item.gear}{RESET}.")
+
             elif c.__class__.__name__ == "EditCharacter":
                 if (name == main_character.name):
                     user_input = input("Please enter the character's new name!\n")
                     name = user_input
-                    print(f"{c.title} is now called {name}.")
+                    print(f"{GREEN}{c.title}{RESET} is now called {YELLOW}{name}{RESET}.")
             elif c.__class__.__name__ == "Setting":
                 if (c.setting == "boat"):
                     print(f"{name}'s awoken inside a dimly-lit ramshackle room. They're surrounded by its wooden exterior and hear its bellows " 
@@ -44,30 +80,69 @@ class FictionFabricator:
                           f" shows that there are no windows and no doors, what's {name} to do?")
                     playsound("shipCreak.wav")
                 elif (c.setting == "forest"):
-                    print(f"{name} is currently running away from a group of headless phantoms. Their maniacal cackling and long, sharp finger bones disuade anyone form"
-                          f"ever getting close, but our hero didn't listen to the warnings. As {name} enters deeper into the forest, the pleasant sunlight"
-                          f"quickly fades into darkness and shrubery. They lost the phantoms, but where are they to go?")   
-
-                    playsound("LeavesRustle.wav")           
+                    print(f"{name} is currently running away from a group of headless phantoms. Their maniacal cackling and long, sharp finger bones disuade anyone form "
+                          f"ever getting close, but our hero didn't listen to the warnings. As {name} enters deeper into the forest, the pleasant sunlight "
+                          f"quickly fades into darkness and shrubery. They lost the phantoms, but where are they to go?")  
+                    playsound("LeavesRustle.wav")
+                    for index, choice in enumerate(c.decisions):
+                        try:
+                            print(f"{BLUE}Option {index+1}:{RESET} {choice.first_choice}")
+                        except IndexError:
+                            print(f"Nothing...")
+                        try:
+                            print(f"{CYAN}Option {index+2}:{RESET} {choice.second_choice}")
+                        except IndexError:
+                            print(f"Nothing.")
+                        user_input = input(f"Choose the path you'd like {YELLOW}{name}{RESET} to take > ")
+                        for index, path in enumerate(c.decisions):
+                            if (user_input == '1'):
+                                    print(path.responses[0].response)
+                                    try:
+                                        print(f"{YELLOW}{name}:{RESET} {GREEN}{path.dialogue[0].dialogue}{RESET}")
+                                    except IndexError:
+                                        print(f"{YELLOW}{name}:{RESET} {GREEN}'...'{RESET}")
+                            elif (user_input == '2'):
+                                    print(path.responses[1].response)
+                                    try:
+                                        print(f"{YELLOW}{name}:{RESET} {GREEN}{path.dialogue[1].dialogue}{RESET}")
+                                    except IndexError:
+                                        print(f"{YELLOW}{name}:{RESET} {GREEN}'...'{RESET}")         
                 else:
                     print(c.setting)
                     playsound("CustomSound.mp3")
                     for index, choice in enumerate(c.decisions):
-                        print(f"Option {index+1}: {choice.first_choice}")
-                        print(f"Option {index+2}: {choice.second_choice}")
-                        user_input = input(f"Choose the path you'd like {name} to take > ")
+                        print(f"{BLUE}Option {index+1}:{RESET} {choice.first_choice}")
+                        print(f"{CYAN}Option {index+2}:{RESET} {choice.second_choice}")
+                        user_input = input(f"Choose the path you'd like {YELLOW}{name}{RESET} to take > ")
                         for index, path in enumerate(c.decisions):
                             if (user_input == '1'):
                                     print(path.responses[0].response)
-                                    print(f"{name}: {path.dialogue.dialogue}")
+                                    try:
+                                        print(f"{YELLOW}{name}:{RESET} {GREEN}{path.dialogue[0].dialogue}{RESET}")
+                                    except IndexError:
+                                        print(f"{YELLOW}{name}:{RESET} {GREEN}'...'{RESET}")
                             elif (user_input == '2'):
                                     print(path.responses[1].response)
-            elif c.__class__.__name__ == "Check":
-                if name == main_character.name:
-                    print(main_character)
-                    print(f"Your character's personalities are:")
+                                    try:
+                                        print(f"{YELLOW}{name}:{RESET} {GREEN}{path.dialogue[1].dialogue}{RESET}")
+                                    except IndexError:
+                                        print(f"{YELLOW}{name}:{RESET} {GREEN}'...'{RESET}")
             elif c.__class__.__name__ == "Dialogue":
-                print(f'{name}: "{c.dialogue}" ')
-        
+                print(f"{YELLOW}{name}:{RESET} {GREEN}'{c.dialogue}' {RESET}")
+            elif c.__class__.__name__ == "DiceRoll":
+                diceSize = c.amount
+                diceRoll = random.randint(1, diceSize)
+                print(f"{YELLOW}{name}{RESET} has rolled a {GREEN}{diceRoll}{RESET}.")
+            elif c.__class__.__name__ == "Continue":
+                for i in range(c.times):
+                    for declaration in c.declarations:
+                        if declaration.__class__.__name__ == "Dialogue":
+                            print(f"{YELLOW}{name}:{RESET} {GREEN}'{declaration.dialogue}' {RESET}")
+                        elif declaration.__class__.__name__ == "DiceRoll":
+                            diceSize = declaration.amount
+                            diceRoll = random.randint(1, diceSize)
+                            print(f"{YELLOW}{name}{RESET} has rolled a {GREEN}{diceRoll}{RESET}.")
+                        
+                      
 BasicTale = FictionFabricator()
 BasicTale.interpret(fiction_model)

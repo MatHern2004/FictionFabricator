@@ -1,16 +1,21 @@
 name "Mathew"
 personality "Strong" = 5
-personality "Brazen"
-personality "Stuborn"
+personality "Dumb" = 5
+item "Key" = true
+say "Let's f'n go!"
+continue(5) 
+{
+    say "..."
+    roll 6
+}
 edit "Mathew"
-say "Let's do this!"
 setting "Your character enters an abandoned elevator, hoping for a way of escape from the impending bug-eyed creature racing towards them."
-choice one("Hit the button that leads to the top floor?")
+choice one("Hit the button that leads to the top floor?") 
 {
     response "The elevator closes just as the monster leaps towards them. They hear a loud thud and a ding as they begin to rise to the top floor."
-    say "That was close!"
 }
 choice two("Hit the button that leads to the bottom floor?")
 {
     response "The elevator closes just as the monster leaps towards them. They hear a loud thud and a ding as they begin to lower to the bottom floor."
+    say "'Okay, that just happened...'"
 }

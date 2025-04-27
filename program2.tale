@@ -1,0 +1,14 @@
+name "Eliza"
+personality "Ugliness" = 6
+item "hairbrush" = true
+setting forest
+choice one("Take own life?") if "Ugliness" > 5
+{
+    response "You look down a ravine and hop in. You took your own life because of your hideousness!"\
+    say "Why bother..."
+}
+choice two("Do not take own life.") if "Ugliness" < 5
+{
+    response "You look down a ravine and hop in. You took your own life because of your hideousness!"
+    say "Let's keep living!"
+}

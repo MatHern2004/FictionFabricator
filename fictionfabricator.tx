@@ -3,16 +3,25 @@ Structure:
 ;
 
 Declaration:
-    CreateCharacter | EditCharacter | Setting | Check | Dialogue
+    CreateCharacter | EditCharacter | Setting | Dialogue | Continue | DiceRoll
 ;
 
 CreateCharacter:
     'name' title=STRING
      personalities+=FeatureCharacteristic
+     items+=Gear
 ;
 
 FeatureCharacteristic:
     'personality' characteristic=STRING ('=' value=INT)?
+;
+
+Gear: 
+    'item' gear=STRING ('=' value=Boolean)?
+;
+
+Boolean:
+    "true"|"false"
 ;
 
 EditCharacter:
@@ -20,7 +29,7 @@ EditCharacter:
 ;
 
 Setting:
-    setting=Destination | 'setting' setting=STRING
+    'setting' setting=Destination  decisions*=Choice | 'setting' setting=STRING
     decisions*=Choice
 ;
 
@@ -29,19 +38,37 @@ Destination:
 ;
 
 Choice:
-    'choice one''('first_choice=STRING')' '{' responses*=Response   
-    dialogue=Dialogue'}'
-    'choice two''('second_choice=STRING')' '{' responses*=Response  '}'  
+    'choice one''('first_choice=STRING')' 
+    ('if' variable=STRING Check requirement=INT)? 
+    '{'(dialogue=Dialogue)? responses*=Response (dialogue=Dialogue)? '}'
+
+    ('choice two''('second_choice=STRING')')?
+    ('if' variable=STRING Check requirement=INT)? 
+    '{'(dialogue=Dialogue)? responses*=Response (dialogue=Dialogue)?'}'  
 ;
 
 Check:
-    'check''('name=STRING')'
-;
-
-Dialogue:
-    'say' dialogue=STRING
+    "<="|">="|"=="|"!="|"<"|">"|
 ;
 
 Response:
     'response' response=STRING
+;
+
+Dialogue:
+    ('say' dialogue=STRING)?
+    ('narrate' text=STRING)?
+;
+
+Boolean:
+    "true"|"false"
+;
+
+Continue:
+'continue''('times=INT')'
+'{' declarations*=Declaration '}'
+;
+
+DiceRoll:
+'roll' (amount=INT)?
 ;
