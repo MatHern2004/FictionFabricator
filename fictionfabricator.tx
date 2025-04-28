@@ -39,16 +39,16 @@ Destination:
 
 Choice:
     'choice one''('first_choice=STRING')' 
-    ('if' variable=STRING Check requirement=INT)? 
+    ('if' variable=STRING check=Check requirement=INT)? 
     '{'(dialogue=Dialogue)? responses*=Response (dialogue=Dialogue)? '}'
 
     ('choice two''('second_choice=STRING')')?
-    ('if' variable=STRING Check requirement=INT)? 
+    ('if' variable=STRING check=Check requirement=INT)? 
     '{'(dialogue=Dialogue)? responses*=Response (dialogue=Dialogue)?'}'  
 ;
 
 Check:
-    "<="|">="|"=="|"!="|"<"|">"|
+    "<="|">="|"=="|"!="|"<"|">"
 ;
 
 Response:
