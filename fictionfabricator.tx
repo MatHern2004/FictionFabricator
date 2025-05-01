@@ -3,13 +3,13 @@ Structure:
 ;
 
 Declaration:
-    CreateCharacter | EditCharacter | Setting | Dialogue | Continue | DiceRoll
+    CreateCharacter | EditCharacter | Setting | Dialogue | Continue | DiceRoll | Goto
 ;
 
 CreateCharacter:
     'name' title=STRING
      personalities+=FeatureCharacteristic
-     items+=Gear
+     (items+=Gear)?
 ;
 
 FeatureCharacteristic:
@@ -29,7 +29,7 @@ EditCharacter:
 ;
 
 Setting:
-    'setting' setting=Destination  decisions*=Choice | 'setting' setting=STRING
+    'setting' setting=Destination  (decisions*=Choice)? | 'setting' setting=STRING
     decisions*=Choice
 ;
 
@@ -39,12 +39,27 @@ Destination:
 
 Choice:
     'choice one''('first_choice=STRING')' 
-    ('if' variable=STRING check=Check requirement=INT)? 
-    '{'(dialogue=Dialogue)? responses*=Response (dialogue=Dialogue)? '}'
+    ('if' variable_one=STRING check=Check requirement_one=INT)? 
+    ('if' item_one=STRING '=' result=Boolean)?
+    '{'(dialogue=Dialogue)? responses*=Response (dialogue=Dialogue)? 
+        (new_setting=Goto)?
+    '}'
 
     ('choice two''('second_choice=STRING')')?
-    ('if' variable=STRING check=Check requirement=INT)? 
-    '{'(dialogue=Dialogue)? responses*=Response (dialogue=Dialogue)?'}'  
+    ('if' variable_two=STRING check=Check requirement_two=INT)? 
+    ('if' item_two=STRING '=' result=Boolean)?
+    '{'
+        (dialogue=Dialogue)? responses*=Response (dialogue=Dialogue)?
+        (new_setting=Goto)?
+    '}'  
+;
+
+Goto:
+    'goto' locations*=NewLocation
+;
+
+NewLocation:
+    location=STRING (decisions*=Choice)?
 ;
 
 Check:
@@ -56,7 +71,7 @@ Response:
 ;
 
 Dialogue:
-    ('say' dialogue=STRING)?
+    'say' dialogue=STRING
     ('narrate' text=STRING)?
 ;
 
@@ -66,9 +81,15 @@ Boolean:
 
 Continue:
 'continue''('times=INT')'
-'{' declarations*=Declaration '}'
+'{' 
+    declarations*=Declaration 
+'}'
 ;
 
 DiceRoll:
 'roll' (amount=INT)?
+;
+
+Comment:
+  /\/\/.*$/
 ;

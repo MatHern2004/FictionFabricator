@@ -1,14 +1,28 @@
 name "Eliza"
-personality "Ugliness" = 5
-item "hairbrush" = true
+//Set Eliza's personality to a 5.
+personality "Ugliness" = 6
+item "hairbrush" = false
 setting forest
 choice one("Take own life?") if "Ugliness" > 5
 {
     response "You look down a ravine and hop in. You took your own life because of your hideousness!"
     say "Why bother..."
+    goto "Trash Fort: a place filled with junk."
 }
-choice two("Do not take own life?") 
+choice two("Do not take own life?") if "hairbrush" = true
 {
     response "You look down a ravine and hop in. You took your own life because of your hideousness!"
     say "Let's keep on livin'!"
+
+}
+
+goto "Trash Fort"
+choice one("Reject the trash fort.")
+{
+    response "You leave, disgusted at the pile of filth that rests in front of you."
+
+}
+choice two("Appreciate the trash fort.")
+{
+    response "You inhale the stench and sigh with satisfaction, you're home..."
 }
