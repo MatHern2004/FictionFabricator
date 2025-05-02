@@ -1,13 +1,10 @@
 name "Sean"
 personality "Sean"
+item "dog" = true
 edit "Sean"
 setting boat
-choice one("Jump out of the boat?")
+choice one("Jump out of the boat?") empty "yes"
 { 
     response "You jump out of the boat and drown, The End."
 }
-choice two("Remain in your room?")
-{
-    response "You remain inside your room and starve to death, The End."
-    say "Okay, that just happened..."
-}
+//All you need is one choice!

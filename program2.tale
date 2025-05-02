@@ -13,16 +13,15 @@ choice two("Do not take own life?") if "hairbrush" = true
 {
     response "You look down a ravine and hop in. You took your own life because of your hideousness!"
     say "Let's keep on livin'!"
-
 }
 
 goto "Trash Fort"
-choice one("Reject the trash fort.")
-{
-    response "You leave, disgusted at the pile of filth that rests in front of you."
+    choice one("Reject the trash fort.") empty "yes"
+    {
+        response "You leave, disgusted at the pile of filth that rests in front of you."
 
-}
-choice two("Appreciate the trash fort.")
-{
-    response "You inhale the stench and sigh with satisfaction, you're home..."
-}
+    }
+    choice two("Appreciate the trash fort.") empty "yes"
+    {
+        response "You inhale the stench and sigh with satisfaction, you're home..."
+    }

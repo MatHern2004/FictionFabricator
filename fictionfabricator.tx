@@ -39,20 +39,25 @@ Destination:
 
 Choice:
     'choice one''('first_choice=STRING')' 
-    ('if' variable_one=STRING check=Check requirement_one=INT)? 
+    ('if' variable_one=STRING check_one=Check requirement_one=INT)? 
     ('if' item_one=STRING '=' result=Boolean)?
-    '{'(dialogue=Dialogue)? responses*=Response (dialogue=Dialogue)? 
-        (new_setting=Goto)?
+    ('empty'empty_one=STRING)?
+    '{'
+        responses*=Response
+        (dialogue_one=Dialogue)? 
+        (new_setting_one=Goto)?
     '}'
 
     ('choice two''('second_choice=STRING')')?
-    ('if' variable_two=STRING check=Check requirement_two=INT)? 
+    ('if' variable_two=STRING check_two=Check requirement_two=INT)? 
     ('if' item_two=STRING '=' result=Boolean)?
-    '{'
-        (dialogue=Dialogue)? responses*=Response (dialogue=Dialogue)?
-        (new_setting=Goto)?
-    '}'  
-;
+    ('empty'empty_two=STRING)?
+    ('{')?
+        (responses*=Response)?
+        (dialogue_two=Dialogue)?
+        (new_setting_two=Goto)?
+    ('}')?
+;   
 
 Goto:
     'goto' locations*=NewLocation
@@ -72,7 +77,6 @@ Response:
 
 Dialogue:
     'say' dialogue=STRING
-    ('narrate' text=STRING)?
 ;
 
 Boolean:

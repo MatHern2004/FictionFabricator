@@ -1,4 +1,4 @@
-import sys # to help run multiple programs within terminal
+import sys # helps run multiple programs within terminal
 import random # for random calculations
 import threading # for playing multiple sounds at once
 
@@ -16,7 +16,7 @@ YELLOW = '\033[33m'
 BLUE = '\033[34m'
 MAGENTA = '\033[35m'  
 CYAN = '\033[36m'
-BLACK = '\033[30m'
+GREY = '\033[30m'
 RESET = '\033[0m'
 
 state = {} # keeps track of state for variables 
@@ -35,14 +35,16 @@ def evaulate_variable(variable, state):
         raise Exception(f"Variable '{variable}' is not defined")
 
 
-def check_bool(item_result):
-    if not item_result == None:
-        if item_result == "true":
+# checks if an item is marked as true or false 
+def check_bool(item_result, item_name):
+    if not item_name == '': # if an item exists...
+        true_value = state[item_name]
+        if true_value == item_result[0]:
             return True
         else:
             return False
     else:
-        print(f"{RED}There is no item within here.{RESET}")
+        return False # if it doesn't exist return false
 
 
 class Character:
@@ -52,7 +54,8 @@ class Character:
 
 
 def make_decision(decision_data, character):
-    for index, choice in enumerate(decision_data): # iterstes through the possible declarations one can make within a decision statement
+    for index, choice in enumerate(decision_data): # iterates through the possible declarations one can make within a decision statement
+   
     # obtain all needed variables at inception
         first_choice = choice.first_choice
         second_choice = choice.second_choice
@@ -60,95 +63,163 @@ def make_decision(decision_data, character):
         requirement_one = choice.requirement_one
         variable_two = choice.variable_two
         requirement_two = choice.requirement_two
-        response_one = choice.responses[index].response
-        response_two = choice.responses[index+1].response
+        response_one = choice.responses[index].response if choice.responses[index].response else ""# grabs first option from a list of responses
+        response_two = choice.responses[index].response if choice.responses[index].response else ""# grabs second option from a list of responses
         item_one = choice.item_one
         item_two = choice.item_two
         item_one_result = choice.result
         item_two_result=choice.result
-        decision = choice.check
+        check_one = choice.check_one
+        check_two = choice.check_two
+        empty_one = choice.empty_one
+        empty_two = choice.empty_two
+        dialogue_one = choice.dialogue_one.dialogue if choice.dialogue_one else "" # if dialogue isn't provided, it creates a blank value
+        dialogue_two = choice.dialogue_two.dialogue if choice.dialogue_two else "" # if dialogue isn't provided, it creates a blank value
 
-    try:
-        print(f"{RED}HEADS UP: {RESET}Option 1 requires a(n) {GREEN}{variable_one}{RESET} score greater than {YELLOW}{requirement_one}{RESET}.")
-        print(f"{BLUE}Option 1:{RESET} {first_choice}\n") 
-    except IndexError: # if there is no option available
-        print(f"{GREEN}This option is unavailable.{RESET}")
-    try:
-        print(f"{RED}HEADS UP: {RESET}Option 2 requires a(n) {GREEN}{variable_two}{RESET} score less than {YELLOW}{requirement_two}{RESET}.")
-        print(f"{BLUE}Option 2:{RESET} {second_choice}\n") 
-    except IndexError: # if there is no option available
-        print(f"{GREEN}This option is unavailable.{RESET}")
+     # display option 1
+        if not check_one == None: # if there is a check
+            print(f"{RED}HEADS UP: {RESET}Option 1 requires that {GREEN}{variable_one}{RESET} {check_one} {YELLOW}{requirement_one}{RESET}.")
+            print(f"{BLUE}Option 1:{RESET} {first_choice}\n") 
+        else:
+            if not item_one == '': # if there is an item
+                print(f"{RED}HEADS UP: {RESET}Option 1 requires that {GREEN}{item_one}{RESET} = {YELLOW}{item_one_result}{RESET}.")
+                print(f"{BLUE}Option 1:{RESET} {first_choice}\n") 
+            elif "" == first_choice: # if there is no choice given
+                print(f"{BLUE}Option 1{RESET} is unavailable...")
+            else:
+                print(first_choice) # if there is no requirement ('item' or 'key')
+                print(f"{BLUE}Option 1:{RESET} {first_choice}\n") 
+  
+    # display option 2
+        if not check_two == None: # if there is a check
+            print(f"{RED}HEADS UP: {RESET}Option 2 requires that {GREEN}{variable_two}{RESET} {check_two} {YELLOW}{requirement_two}{RESET}.")
+            print(f"{BLUE}Option 2:{RESET} {second_choice}\n") 
+        else:
+            if not item_two == '': # if there is an item
+                print(f"{RED}HEADS UP: {RESET}Option 2 requires that {GREEN}{item_two}{RESET} = {YELLOW}{item_two_result}{RESET}.")
+                print(f"{BLUE}Option 2:{RESET} {second_choice}\n") 
+            elif "" == second_choice: # if there is no choice given
+                print(f"{BLUE}Option 2{RESET} is unavailable...")
+            else:
+                print(second_choice) # if there is no requirement ('item' or 'key')
+                print(f"{BLUE}Option 2:{RESET} {second_choice}\n") 
     
     user_input = input(f"Choose the path you'd like {YELLOW}{character.name}{RESET} to take > ")
-    if (user_input == "1"): # if user selects one...
-        inequality_flag = check_inequality(decision_data, variable_one, requirement_one) #  checks the if statement's inequality
+
+
+# Begin selection process
+    if (user_input == "1"): # if user selects 1
+        inequality_flag = check_inequality(check_one, variable_one, requirement_one)
         if inequality_flag:
-            if check_bool(item_one_result):
-                print(item_one_result)
-                print(f'{YELLOW}{character.name}{RESET} uses their {GREEN}{item_one}{RESET} well and with ease.')
-            print(f"{GREEN}Option 1:{RESET} {response_one}")
-        else:
-            if not choice.new_setting == []: # if there is a goto statement within...
+            print(f"{GREEN}Option 1:{RESET} {response_one}\n")
+            say_dialogue(dialogue_one, character)
+            if not choice.new_setting_one == None: # if there is a goto
                 print(f"{YELLOW}We'll be heading to a new location!{RESET}")
-                locals = choice.new_setting[index].locations[index].location # statement that tells us where we're going
-                print(locals)
+                locals = choice.new_setting_one.locations[0].location # statement that tells us where we're going
+                print(f"{locals}\n")
                 return locals # statement for later use in our goto-function
-            else:
-                print(f"{RED}You do not meet the requirements to make this choice!{RESET}")
-                print("You will be taken to Option 2.")
-                inequality_flag = check_inequality(decision_data, variable_two, requirement_two)
-                if inequality_flag:
-                    print(f"{GREEN}Option 2:{RESET} {response_two}")
-                else:
-                    print(f"{RED}You do not meet the requirements to make this choice!{RESET}")
-                    print(f"{RED}Neither{RESET} of the variants are accessible...")
-                    print(f"{YELLOW}YOU LOSE!{RESET}")
-    else: # if user selects 2
-        inequality_flag = check_inequality(decision_data, variable_two, requirement_two)
-        if inequality_flag:
-            print(f"{GREEN}Option 2:{RESET} {response_two}")
-            if not choice.new_setting == []:
-                            print(f"{YELLOW}We'll be heading to a new location!{RESET}")
-                            locals = choice.new_setting[index].locations[index].location # statement that tells us where we're going
-                            print(locals)
-                            return locals # statement for later use in our goto-function
-        elif inequality_flag == None:
-            if check_bool(item_two_result): # if statement that checks for a boolean
-                print(f'{YELLOW}{character.name}{RESET} uses their {GREEN}{item_two}{RESET} well and with ease.')
-                print(f"{GREEN}Option 2:{RESET} {response_two}")
-                if not choice.new_setting == []: # if there is a goto statement within...
+        elif inequality_flag == None or inequality_flag == False: 
+            if check_bool(item_one_result, item_one): # if statement that checks for a item boolean
+                print(f'{YELLOW}{character.name}{RESET} uses their {GREEN}{item_one}{RESET} well and with ease.')
+                print(f"{GREEN}Option 1:{RESET} {response_one}\n")
+                say_dialogue(dialogue_one, character)
+                if not choice.new_setting_one == None: # if there is a goto statement within...
                     print(f"{YELLOW}We'll be heading to a new location!{RESET}")
-                    locals = choice.new_setting[index+1].locations[index+1].location # statement that tells us where we're going
-                    print(locals)
+                    locals = choice.new_setting_one.locations[0].location # statement that tells us where we're going
+                    print(f"{locals}\n")
                     return locals # statement for later use in our goto-function
-            else:
-                print(f"{RED}You do not meet the requirements to make this choice!{RESET}")
-                print("You will be taken to Option 1.")
-                inequality_flag = check_inequality(decision_data, variable_one, requirement_one)
-                if inequality_flag:
-                    print(f"{GREEN}Option 1:{RESET} {response_one}")
-                    if not choice.new_setting == []:
+            elif empty_one == "yes": # if the choice has no requirements
+                print(f"{GREEN}Option 1:{RESET} {response_one}")
+                say_dialogue(dialogue_one, character)
+            else: # go to option 2
+                print(f"{RED}You do not meet the requirements to make this choice!{RESET}\n")
+                print("You will be taken to Option 2.")
+                inequality_flag = check_inequality(check_two, variable_two, requirement_two)
+                if inequality_flag: 
+                    print(f"{GREEN}You meet the requirements for the second option!{RESET}\n")
+                    print(f"{GREEN}Option 2:{RESET} {response_two}")
+                    say_dialogue(dialogue_two, character)
+                    if not choice.new_setting_two == None: # if there is a goto
+                        print(f"{YELLOW}We'll be heading to a new location!{RESET}")
+                        locals = choice.new_setting_two.locations[0].location # statement that tells us where we're going
+                        print(f"{locals}\n")
+                        return locals # statement for later use in our goto-function
+                elif inequality_flag == None or inequality_flag == False:
+                    if check_bool(item_two_result, item_two): # if statement that checks for a item boolean
+                        print(f'{YELLOW}{character.name}{RESET} uses their {GREEN}{item_two}{RESET} well and with ease.')
+                        print(f"{GREEN}Option 2:{RESET} {response_two}")
+                        say_dialogue(dialogue_two, character)
+                        if not choice.new_setting_two == None: # if there is a goto statement within...
                             print(f"{YELLOW}We'll be heading to a new location!{RESET}")
-                            locals = choice.new_setting[index].locations[index].location # statement that tells us where we're going
-                            print(locals)
+                            locals = choice.new_setting_two.locations[0].location # statement that tells us where we're going
+                            print(f"{locals}\n")
                             return locals # statement for later use in our goto-function
-                elif inequality_flag == None:
-                    if check_bool(item_one_result): # if statement that checks for a boolean
-                        print(f'{YELLOW}{character.name}{RESET} uses their {GREEN}{item_one}{RESET} well and with ease.')
-                        print(f"{GREEN}Option 1:{RESET} {response_one}")
-                        if not choice.new_setting == []:
-                            print(f"{YELLOW}We'll be heading to a new location!{RESET}")
-                            locals = choice.new_setting[index].locations[index].location # statement that tells us where we're going
-                            print(locals)
-                            return locals # statement for later use in our goto-function
-                    else:
+                    elif empty_two == "yes": # if the choice has no requirements
+                        print(f"{GREEN}Option 2:{RESET} {response_two}")
+                        say_dialogue(dialogue_two, character) 
+                    else: # if neither of the options meet the requirements
                         print(f"{RED}You do not meet the requirements to make this choice!{RESET}")
-                        print(f"{RED}Neither{RESET} of the variants are accessible...")
+                        print(f"{RED}Neither{RESET} of the variants are accessible...\n")
                         print(f"{YELLOW}YOU LOSE!{RESET}")
         
 
+    else: # if user selects 2
+        inequality_flag = check_inequality(check_two, variable_two, requirement_two)
+        if inequality_flag:
+            print(f"{GREEN}Option 2:{RESET} {response_two}\n")
+            say_dialogue(dialogue_two, character)
+            if not choice.new_setting_two == None:
+                print(f"{YELLOW}We'll be heading to a new location!{RESET}")
+                locals = choice.new_setting_two.locations[0].location # statement that tells us where we're going
+                print(f"{locals}\n")
+                return locals # statement for later use in our goto-function
+        elif inequality_flag == None or inequality_flag == False:
+            if check_bool(item_two_result, item_two): # if statement that checks for a item boolean
+                print(f'{YELLOW}{character.name}{RESET} uses their {GREEN}{item_two}{RESET} well and with ease.')
+                print(f"{GREEN}Option 2:{RESET} {response_two}\n")
+                say_dialogue(dialogue_two, character)
+                if not choice.new_setting_two == None: # if there is a goto statement within...
+                    print(f"{YELLOW}We'll be heading to a new location!{RESET}")
+                    locals = choice.new_setting_two.locations[0].location # statement that tells us where we're going
+                    print(f"{locals}\n")
+                    return locals # statement for later use in our goto-function
+            elif empty_two == "yes": # if the choice has no requirements
+                print(f"{GREEN}Option 2:{RESET} {response_two}")
+                say_dialogue(dialogue_two, character)
+            else: # go to option 1
+                print(f"{RED}You do not meet the requirements to make this choice!{RESET}\n")
+                print("You will be taken to Option 1.")
+                inequality_flag = check_inequality(check_one, variable_one, requirement_one)
+                if inequality_flag:
+                    print(f"{GREEN}You meet the requirements for the second option!{RESET}\n")
+                    print(f"{GREEN}Option 1:{RESET} {response_one}")
+                    say_dialogue(dialogue_one, character)
+                    if not choice.new_setting_one == None:
+                        print(f"{YELLOW}We'll be heading to a new location!{RESET}")
+                        locals = choice.new_setting_one.locations[0].location # statement that tells us where we're going
+                        print(locals)
+                        return locals # statement for later use in our goto-function
+                elif inequality_flag == None or inequality_flag == False:
+                    if check_bool(item_one_result, item_one): # if statement that checks for a item boolean
+                        print(f'{YELLOW}{character.name}{RESET} uses their {GREEN}{item_one}{RESET} well and with ease.')
+                        print(f"{GREEN}Option 1:{RESET} {response_one}")
+                        say_dialogue(dialogue_one, character)
+                        if not choice.new_setting_one == None: # if there is a goto statement within...
+                            print(f"{YELLOW}We'll be heading to a new location!{RESET}")
+                            locals = choice.new_setting_one.locations[0].location # statement that tells us where we're going
+                            print(f"{locals}\n")
+                            return locals # statement for later use in our goto-function
+                    elif empty_one == "yes": # if the choice has no requirements
+                            print(f"{GREEN}Option 1:{RESET} {response_one}")
+                            say_dialogue(dialogue_one, character)
+                    else: # if neither of the options meet the requirements
+                        print(f"{RED}You do not meet the requirements to make this choice!{RESET}")
+                        print(f"{RED}Neither{RESET} of the variants are accessible...\n")
+                        print(f"{YELLOW}YOU LOSE!{RESET}")
+
+
 def make_setting(setting_data, character):
-     # there are three templates for setting: boat, mansion, and forest: each print a basic template for the user
+     # there are three templates for setting: boat, mansion, and forest: each print a basic template for the user and play a noise
     if setting_data == "boat":
        print(f"{YELLOW}{character.name}'s{RESET} awoken inside a dimly-lit ramshackle room. They're surrounded by its wooden exterior and hear its bellows " 
        f"and groans recurrently. With the muted {BLUE}splashing of waves{RESET} from outside, they acknowledge that they are atop a vessel setting out "
@@ -176,7 +247,9 @@ def roll_dice(dice_data, character):
 
 
 def say_dialogue(statement_data, character):
-    print(f"{YELLOW}{character.name}:{RESET} {GREEN}{statement_data}{RESET}")
+    if not statement_data == '':
+        print(f"{YELLOW}{character.name}:{RESET} {GREEN}{statement_data}{RESET}")
+
 
 def loop(continue_data, character):
      for i in range(continue_data.times): # creates a loop that allows for multiple dialogue and diceroll statements. 
@@ -206,7 +279,7 @@ def create_character(name_data, personality_data, item_data):
         print(f"{RED}{personality.characteristic}{RESET} with {YELLOW}{personality.value}{RESET} value points.")
     for index, item in enumerate(item_data):  # iterate through list of items and place them into variablemap
         state[item.gear] = item.value
-        if item.value:
+        if item.value == 'true': # if the player has an item
             print(f"{YELLOW}{name}{RESET} holds a(n) {GREEN}{item.gear}{RESET}.")
         else:
             print(f"{YELLOW}{name}{RESET} does not hold a(n) {GREEN}{item.gear}{RESET}.")
@@ -215,44 +288,40 @@ def create_character(name_data, personality_data, item_data):
 
     # if 'goto' statement made, user will go to a new setting
 def make_goto(goto_data, goto_location, character):
-    for index, place in enumerate(goto_data):
+    for index, place in enumerate(goto_data): # iterates through goto statements 
         locals = place.location[index]
         if locals == None or goto_location == None: # if there is no goto location provided
-            print(f"You pass by a path you could've taken, {RED}but you've made your choice.{RESET}")
+            print(f"You passed by a path you could've taken, {RED}but you made your choice.{RESET}")
         elif locals in goto_location:
-            make_decision(place.decisions, character)
+            make_decision(place.decisions, character) # if there is then reveal its choices
 
 
 def check_inequality(choice_data, variable, requirement):
-    for index, path in enumerate(choice_data):
-        print(path.check[0])
-        if not '' in variable:
-            if '<=' in path.check:
-                result = state[variable] <= requirement
-                return result
-            elif '>=' in path.check:
-                result = state[variable] >= requirement
-                return result
-            elif '==' in path.check:
-                result = state[variable] == requirement
-                return result
-            elif '!=' in path.check:
-                result = state[variable] != requirement
-                return result
-            elif '<' in path.check:
-                result = state[variable] < requirement
-                return result
-            elif '>' in path.check:
-                result = state[variable] > requirement
-                return result
-            elif [] == path.check: # if no inequality/if statement was provided 
-                result = True
-                return result
-            else:
-                raise Exception(f"{RED}The inequality you entered is not valid, {path.check}!{RESET}")
-        else: # if no inequality/if statement is provided
-            return None
-            
+    if choice_data == None: # if there is no choice data
+        return None
+    
+    if '<=' in choice_data:
+        result = state[variable] <= requirement
+        return result
+    elif '>=' in choice_data:
+        result = state[variable] >= requirement
+        return result
+    elif '==' in choice_data:
+        result = state[variable] == requirement
+        return result
+    elif '!=' in choice_data:
+        result = state[variable] != requirement
+        return result
+    elif '<' in choice_data:
+        result = state[variable] < requirement
+        return result
+    elif '>' in choice_data:
+        result = state[variable] > requirement
+        return result
+    else:
+        raise Exception(f"{RED}The inequality you entered is not valid, {choice_data}!{RESET}")
+
+
     # interprets any fictionfabricator program
 class FictionFabricator:
     def interpret(self, model):
@@ -284,8 +353,6 @@ class FictionFabricator:
 
 
 BasicTale = FictionFabricator() # creates a basicTale python object
-BasicTale.interpret(fiction_model) #basicTale interprets the program(story) we give it
-# Create the fizzBuzz variant if neeeded. 
-# Error handling.
-# Finish up item logic.
-# Make a website and customize stuff for fun.
+BasicTale.interpret(fiction_model) #basicTale interprets the program (story) we give it
+# Error-handling.
+# Make a website.

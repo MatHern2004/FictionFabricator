@@ -1,6 +1,6 @@
 name "Mathew"
 personality "Strong" = 6
-personality "Dumb" = 5
+personality "Dumb" = 6
 item "Key" = false
 say "Let's f'n go!"
 continue(5) 
