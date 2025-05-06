@@ -3,7 +3,7 @@ Structure:
 ;
 
 Declaration:
-    CreateCharacter | EditCharacter | Setting | Dialogue | Continue | DiceRoll | Goto
+    CreateCharacter | EditCharacter | Setting | Dialogue | Continue | DiceRoll | Goto | FizzBuzz | IncrementValue
 ;
 
 CreateCharacter:
@@ -92,6 +92,18 @@ Continue:
 
 DiceRoll:
 'roll' (amount=INT)?
+;
+
+FizzBuzz: 
+'fizzbuzzeth' '('operand1=INT',' operand2=INT',' fizz=STRING',' buzz=STRING')'
+;
+
+IncrementValue:
+'if' 'roll' '=' value=INT
+'{'
+    roll=DiceRoll
+    'addto' personality=STRING
+'}'
 ;
 
 Comment:

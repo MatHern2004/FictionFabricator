@@ -1,6 +1,5 @@
 import sys # helps run multiple programs within terminal
 import random # for random calculations
-import threading # for playing multiple sounds at once
 
 from textx import metamodel_from_file # metamodel imported to textx
 from playsound import playsound # for audio
@@ -8,6 +7,7 @@ from playsound import playsound # for audio
 tale_file = sys.argv[1] # obtain file based on the argument taken from the terminal
 fiction_mm = metamodel_from_file('fictionfabricator.tx') # generate grammar meta_model
 fiction_model = fiction_mm.model_from_file(tale_file) # generate a model based on the program created from terminal
+play_again = 'y' # begins story and lets user redo story
 
 # colors for text
 RED = '\033[31m'
@@ -33,6 +33,38 @@ def evaulate_variable(variable, state):
         return variablemap(variable, state)
     else:
         raise Exception(f"Variable '{variable}' is not defined")
+
+# dice game that lets you increment a personality value
+def increment_value(roll, roll_requirement, personality, character):
+    roll_size = roll.amount 
+    roll_value = roll_dice(roll_size, character) 
+
+    print(f"Let's see if you're lucky enough, {GREEN}{character.name}{RESET} to gain some experience! Roll the die and if it lands on {YELLOW}{roll_requirement}{RESET}"
+          f", you'll increase your {GREEN}{personality}{RESET} personality!")
+    print(f"You rolled a {YELLOW}{roll_value}.{RESET}")
+    print(f"And I asked for a {YELLOW}{roll_requirement}.{RESET}")
+
+    if roll_value == roll_requirement: # if player wins dice game
+        increase_value =  state[personality] + 1
+        state[personality] = increase_value
+        print(f"Your personality, {YELLOW}{personality}{RESET}, has increased by one!{RESET} {GREEN}Congrats on winnning!{RESET}")
+        return increase_value
+    else: # if player loses dice game
+        print(f"Sorry, but {YELLOW}{roll_value}{RESET} does not equal {YELLOW}{roll_requirement}{RESET}! {RED}You lose!{RESET}")
+
+
+def fizzbuzz(variable_one, variable_two, fizz, buzz):
+    length = input(f"{YELLOW}Set fizzbuzzeth {GREEN}length{RESET} here please: > {RESET}")
+    length = int(length)
+    for num in range(1, length+1):
+        if num % variable_one == 0 and num % variable_two == 0:
+            print(f"{RED}{fizz}" + f"{buzz}{RESET}")
+        elif num % variable_one == 0:
+            print(f"{MAGENTA}{fizz}{RESET}")
+        elif num % variable_two == 0:
+            print(f"{GREEN}{buzz}{RESET}")
+        else:
+            print(f"{YELLOW}{num}{RESET}")
 
 
 # checks if an item is marked as true or false 
@@ -108,7 +140,7 @@ def make_decision(decision_data, character):
 
 
 # Begin selection process
-    if (user_input == "1"): # if user selects 1
+    if (user_input == '1'): # if user selects 1
         inequality_flag = check_inequality(check_one, variable_one, requirement_one)
         if inequality_flag:
             print(f"{GREEN}Option 1:{RESET} {response_one}\n")
@@ -161,9 +193,7 @@ def make_decision(decision_data, character):
                         print(f"{RED}You do not meet the requirements to make this choice!{RESET}")
                         print(f"{RED}Neither{RESET} of the variants are accessible...\n")
                         print(f"{YELLOW}YOU LOSE!{RESET}")
-        
-
-    else: # if user selects 2
+    elif user_input == '2': # if user selects 2
         inequality_flag = check_inequality(check_two, variable_two, requirement_two)
         if inequality_flag:
             print(f"{GREEN}Option 2:{RESET} {response_two}\n")
@@ -216,34 +246,46 @@ def make_decision(decision_data, character):
                         print(f"{RED}You do not meet the requirements to make this choice!{RESET}")
                         print(f"{RED}Neither{RESET} of the variants are accessible...\n")
                         print(f"{YELLOW}YOU LOSE!{RESET}")
+    else:
+        if user_input == '':
+            raise ValueError(f"{RED}NOTHING{RESET} is neither {YELLOW}one{RESET} nor {YELLOW}two{RESET}.")
+        else:
+            raise ValueError(f"{RED}{user_input}{RESET} is neither {YELLOW}one{RESET} nor {YELLOW}two{RESET}.")
 
 
 def make_setting(setting_data, character):
      # there are three templates for setting: boat, mansion, and forest: each print a basic template for the user and play a noise
-    if setting_data == "boat":
-       print(f"{YELLOW}{character.name}'s{RESET} awoken inside a dimly-lit ramshackle room. They're surrounded by its wooden exterior and hear its bellows " 
-       f"and groans recurrently. With the muted {BLUE}splashing of waves{RESET} from outside, they acknowledge that they are atop a vessel setting out "
-       f"voyage somewhere. From the bed {YELLOW}{character.name}{RESET} laid on, they see a soft {YELLOW}yellow light{RESET} leering through the window.")
-       playsound("SeaWaves.wav")
-    elif setting_data == "mansion":
-        print(f"{YELLOW}{character.name}{RESET} walks up to a mysterious mansion. It towers above them, with its windows {RED}glaring{RESET} downward towards"
-        f" towards their minute stature. As they push open the mansions' doors, {RED}dust and cobwebs{RESET} fly into the air. Within the mansion"
-        f" shows that there are no windows and no doors, what's {YELLOW}{character.name}{RESET} to do?")
-        playsound("shipCreak.wav")
-    elif setting_data == "forest":
-        print(f"{YELLOW}{character.name}{RESET} is currently running away from a group of {RED}headless phantoms{RESET}. Their {YELLOW}maniacal cackling{RESET} and long, sharp finger bones disuade anyone form "
-        f"ever getting close, but our hero didn't listen to the warnings. As {YELLOW}{character.name}{RESET} enters deeper into the {GREEN}forest{RESET}, the pleasant sunlight "
-        f"quickly fades into darkness and shrubery. They lost the phantoms, but where are they to go?")  
-        playsound("LeavesRustle.wav")
-    else: # if neither of the options are chosen, allow for user defined setting
-        print(f"{YELLOW}{character.name}:{RESET} {setting_data}")
-        playsound("CustomSound.mp3")
+    match setting_data:
+        case "boat":
+            print(f"{YELLOW}{character.name}'s{RESET} awoken inside a dimly-lit ramshackle room. They're surrounded by its wooden exterior and hear its bellows " 
+            f"and groans recurrently. With the muted {BLUE}splashing of waves{RESET} from outside, they acknowledge that they are atop a vessel setting out "
+            f"voyage somewhere. From the bed {YELLOW}{character.name}{RESET} laid on, they see a soft {YELLOW}yellow light{RESET} leering through the window.")
+            print(f"{BLUE}-----Playing the soothing sounds of the outer sea!----{RESET}")
+            playsound("SeaWaves.wav")
+
+        case "mansion":
+            print(f"{YELLOW}{character.name}{RESET} walks up to a mysterious mansion. It towers above them, with its windows {RED}glaring{RESET} downward towards"
+            f" towards their minute stature. As they push open the mansions' doors, {RED}dust and cobwebs{RESET} fly into the air. Within the mansion"
+            f" shows that there are no windows and no doors, what's {YELLOW}{character.name}{RESET} to do?")
+            print(f"{GREY}-----Playing the harrowing noises of the ghouls that live within!-----{RESET}")
+            playsound("shipCreak.wav")
+        case "forest":
+            print(f"{YELLOW}{character.name}{RESET} is currently running away from a group of {RED}headless phantoms{RESET}. Their {YELLOW}maniacal cackling{RESET} and long, sharp finger bones disuade anyone form "
+            f"ever getting close, but our hero didn't listen to the warnings. As {YELLOW}{character.name}{RESET} enters deeper into the {GREEN}forest{RESET}, the pleasant sunlight "
+            f"quickly fades into darkness and shrubery. They lost the phantoms, but where are they to go?")  
+            print(f"{GREEN}-----Playing the relaxing sounds of the windy forest!-----{RESET}")
+            playsound("LeavesRustle.wav")
+        case _: # if neither of the options are chosen, allow for user defined setting
+            print(f"{YELLOW}{character.name}:{RESET} {setting_data}")
+            print(f"{YELLOW}-----Custom sound plays!-----{RESET}")
+            playsound("CustomSound.mp3")
 
 
 def roll_dice(dice_data, character):
     dice_size = dice_data
     dice_roll = random.randint(1, dice_size)
     print(f"{YELLOW}{character.name}:{RESET} has rolled a {GREEN}{dice_roll}{RESET}")
+    return dice_roll
 
 
 def say_dialogue(statement_data, character):
@@ -264,25 +306,56 @@ def loop(continue_data, character):
 def edit_character(character_data, character):
     user_input = input("Please enter the character's new name!\n")
     character = user_input
-    print(f"{GREEN}{character_data}{RESET} is now called {YELLOW}{character}{RESET}.")
-    return character
+    if character == '': # if the user hits enter with no input
+        raise NameError(f"{RED}YOU CANNOT NAME SOMEONE{RESET} {YELLOW}LITERALY NOTHING{RESET}{RED}!{RESET}")
     
-
+    for i in range(len(character)): # if there are numbers within the name
+        if character[i].isdigit():
+            raise NameError(f"{RED}YOU CANNOT NAME SOMEONE{RESET} {YELLOW}{character}{RESET}{RED}, it has digits within it!{RESET}")
+            
+    return character
+   
+    
     # create character with name, personalities, and gear
 def create_character(name_data, personality_data, item_data):
+    
+    if name_data == '': # if the user provides no name
+        raise NameError(f"{RED}YOU CANNOT NAME SOMEONE{RESET} {YELLOW}LITERALY NOTHING{RESET}{RED}!{RESET}")
+    
+    for i in range(len(name_data)): # if user's name has numbers 
+        if name_data[i].isdigit():
+            raise NameError(f"{RED}YOU CANNOT NAME SOMEONE{RESET} {YELLOW}{name_data}{RESET}{RED}, it has digits within it!{RESET}")
+
     character = Character(name_data)
     name = character.name
     print(f"Your character's name is {YELLOW}{name}{RESET}.")
     print(f"{GREEN}Their Characteristics:{RESET}")
     for index, personality in enumerate(personality_data): # iterate through list of personalities and place them into variablemap
+        if personality.characteristic == '': # if the user provides no personality
+            raise NameError(f"{RED}YOU CANNOT NAME A PERSONALITY{RESET} {YELLOW}LITERALY NOTHING{RESET}{RED}!{RESET}")
+        
+        for i in range(len(personality.characteristic)): # if the personality name has numbers 
+            personality_check = personality.characteristic[i]
+            if personality_check.isdigit():
+                raise NameError(f"{RED}YOU CANNOT NAME A PERSONALITY{RESET} {YELLOW}{personality.characteristic}{RESET}{RED}, it has digits within it!{RESET}")
         state[personality.characteristic] = personality.value
         print(f"{RED}{personality.characteristic}{RESET} with {YELLOW}{personality.value}{RESET} value points.")
+
     for index, item in enumerate(item_data):  # iterate through list of items and place them into variablemap
+
+        if item.gear == '': # if the user provies no gear
+            raise NameError(f"{RED}YOU CANNOT NAME A GEAR {RESET} {YELLOW}LITERALY NOTHING{RESET}{RED}!{RESET}")
+        
+        for i in range(len(item.gear)): # if the gear name has numbers 
+            item_check = item.gear[i]
+            if item_check.isdigit():
+                raise NameError(f"{RED}YOU CANNOT NAME A GEAR{RESET} {YELLOW}{personality.characteristic}{RESET}{RED}, it has digits within it!{RESET}")
         state[item.gear] = item.value
         if item.value == 'true': # if the player has an item
-            print(f"{YELLOW}{name}{RESET} holds a(n) {GREEN}{item.gear}{RESET}.")
+                print(f"{YELLOW}{name}{RESET} holds a(n) {GREEN}{item.gear}{RESET}.")
         else:
-            print(f"{YELLOW}{name}{RESET} does not hold a(n) {GREEN}{item.gear}{RESET}.")
+                print(f"{YELLOW}{name}{RESET} does not hold a(n) {GREEN}{item.gear}{RESET}.")
+        
         return character
 
 
@@ -297,62 +370,76 @@ def make_goto(goto_data, goto_location, character):
 
 
 def check_inequality(choice_data, variable, requirement):
-    if choice_data == None: # if there is no choice data
-        return None
-    
-    if '<=' in choice_data:
-        result = state[variable] <= requirement
-        return result
-    elif '>=' in choice_data:
-        result = state[variable] >= requirement
-        return result
-    elif '==' in choice_data:
-        result = state[variable] == requirement
-        return result
-    elif '!=' in choice_data:
-        result = state[variable] != requirement
-        return result
-    elif '<' in choice_data:
-        result = state[variable] < requirement
-        return result
-    elif '>' in choice_data:
-        result = state[variable] > requirement
-        return result
-    else:
-        raise Exception(f"{RED}The inequality you entered is not valid, {choice_data}!{RESET}")
+    match (choice_data):
+        case None: # if there is no choice data
+            return None
+        case '<=':
+            result = state[variable] <= requirement
+            return 
+        case '>=':
+            result = state[variable] >= requirement
+            return result
+        case '==':
+            result = state[variable] == requirement
+            return result
+        case '!=':
+            result = state[variable] != requirement
+            return result
+        case '<': 
+            result = state[variable] < requirement
+            return result
+        case '>':
+            result = state[variable] > requirement
+            return result
+        case _:
+            raise ValueError(f"{RED}The inequality you entered is not valid, {YELLOW}{choice_data}{RESET}!{RESET}")
 
 
     # interprets any fictionfabricator program
 class FictionFabricator:
-    def interpret(self, model):
-        # parses every statement (declaration) within a program (story) 
-        for index, c in enumerate(model.declarations):
-            # if the statment is a CreateCharacter statement
-            if c.__class__.__name__ == "CreateCharacter":
-                main_character = create_character(c.title, c.personalities, c.items)
-            # if the statment is an EditCharacter statement
-            elif c.__class__.__name__ == "EditCharacter":
-                main_character.name = edit_character(c.title, main_character)
-            # if the statment is an Setting statement
-            elif c.__class__.__name__ == "Setting":
-                make_setting(c.setting, main_character)
-                # if a goto exists, then it will be set to a variable
-                goto_location = make_decision(c.decisions, main_character)
-            # if the statment is an Dialogue statement
-            elif c.__class__.__name__ == "Dialogue":
-                say_dialogue(c.dialogue, main_character)
-            # if the statment is an DiceRoll statement
-            elif c.__class__.__name__ == "DiceRoll":
-                roll_dice(c.amount, main_character)
-            # if the statment is an Continue statement
-            elif c.__class__.__name__ == "Continue":
-                loop(c, main_character)
-            # if the statement is a Goto statement
-            elif  c.__class__.__name__ == "Goto":
-                make_goto(c.locations, goto_location, main_character)
-
+        print(f"{YELLOW}---------Beginning Story---------{RESET}")
+        def interpret(self, model):
+            # parses every statement (declaration) within a program (story) 
+            for index, c in enumerate(model.declarations):
+                # if the statment is a CreateCharacter statement
+                if c.__class__.__name__ == "CreateCharacter":
+                    main_character = create_character(c.title, c.personalities, c.items)
+                # if the statment is an EditCharacter statement
+                elif c.__class__.__name__ == "EditCharacter":
+                    main_character.name = edit_character(c.title, main_character)
+                # if the statment is an Setting statement
+                elif c.__class__.__name__ == "Setting":
+                    make_setting(c.setting, main_character)
+                    # if a goto exists, then it will be set to a variable
+                    goto_location = make_decision(c.decisions, main_character)
+                # if the statment is an Dialogue statement
+                elif c.__class__.__name__ == "Dialogue":
+                    say_dialogue(c.dialogue, main_character)
+                # if the statment is an DiceRoll statement
+                elif c.__class__.__name__ == "DiceRoll":
+                    roll = roll_dice(c.amount, main_character)
+                # if the statment is an Continue statement
+                elif c.__class__.__name__ == "Continue":
+                    loop(c, main_character)
+                # if the statement is a Goto statement
+                elif  c.__class__.__name__ == "Goto":
+                    make_goto(c.locations, goto_location, main_character)
+                elif c.__class__.__name__ == "FizzBuzz":
+                    fizzbuzz(c.operand1, c.operand2, c.fizz, c.buzz)
+                elif c.__class__.__name__ == "IncrementValue":
+                    increment_value(c.roll, c.value, c.personality, main_character)
+                else:
+                    print(f"{MAGENTA}All of the declarations within the program have been stated.{RESET}")
 
 BasicTale = FictionFabricator() # creates a basicTale python object
-BasicTale.interpret(fiction_model) #basicTale interprets the program (story) we give it
-# Error-handling.
-# Make a website.
+
+while play_again == 'y': # asks the user if they'd like to play again
+    BasicTale.interpret(fiction_model) #basicTale interprets the program (story) we give it
+    user_input = input(f"{GREEN}Would you like to play again 'y', or 'n'? > {RESET} ")
+    if user_input == 'n':
+        print(f"{GREY}!YOU HAVE ENDED THE STORY!{RESET}")
+        break
+    elif user_input == 'y':
+        print(f"{YELLOW}---------Restarting Story---------{RESET}")
+    else:
+        raise KeyError(f"{RED}{user_input}{RESET} is neither {YELLOW}'y'{RESET} or {YELLOW}'n'{RESET}!")

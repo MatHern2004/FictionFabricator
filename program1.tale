@@ -1,12 +1,18 @@
 name "Mathew"
-personality "Strong" = 6
+personality "Strong" = 5
 personality "Dumb" = 6
-item "Key" = false
-say "Let's f'n go!"
+item "Key" = true
+say "Let's go!"
+fizzbuzzeth(3, 5, "Fizz", "Buzz")
 continue(5) 
 {
     say "..."
     roll 6
+}
+if roll = 5
+{
+    roll 5
+    addto "Strong" 
 }
 edit "Mathew"
 setting "Your character enters an abandoned elevator, hoping for a way of escape from the impending bug-eyed creature racing towards them."
