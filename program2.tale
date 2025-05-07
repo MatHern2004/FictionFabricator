@@ -11,7 +11,7 @@ choice one("Take own life?") if "Ugliness" > 5
 }
 choice two("Do not take own life?") if "hairbrush" = true
 {
-    response "You look down a ravine and hop in. You took your own life because of your hideousness!"
+    response "You look down a ravine and decide not to jump in!"
     say "Let's keep on livin'!"
 }
 
@@ -19,7 +19,6 @@ goto "Trash Fort"
     choice one("Reject the trash fort.") empty "yes"
     {
         response "You leave, disgusted at the pile of filth that rests in front of you."
-
     }
     choice two("Appreciate the trash fort.") empty "yes"
     {

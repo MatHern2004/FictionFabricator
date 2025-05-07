@@ -1,21 +1,35 @@
 name "Mathew"
-personality "Strong" = 5
+personality "Epic" = 6
 personality "Dumb" = 6
 item "Key" = true
+edit "Mathew"
 say "Let's go!"
+//Comment
 if roll = 5
 {
     roll 5
-    addto "Strong" 
+    addto "Epic" 
 }
-edit "Mathew"
+fizzbuzzeth(3, 5, "Fizz", "Buzz")
 setting "Your character enters an abandoned elevator, hoping for a way of escape from the impending bug-eyed creature racing towards them."
-choice one("Hit the button that leads to the top floor?") if "Strong" > 5
+choice one("Hit the button that leads to the top floor?") if "Epic" > 5
 {
     response "The elevator closes just as the monster leaps towards them. They hear a loud thud and a ding as they begin to rise to the top floor."
+    say "'That was close!'"
+    goto "Top Floor: The highest of all time."
 }
 choice two("Hit the button that leads to the bottom floor?") if "Key" = true
 {
     response "The elevator closes just as the monster leaps towards them. They hear a loud thud and a ding as they begin to lower to the bottom floor."
     say "'Okay, that just happened...'"
 }
+
+goto "Top Floor"
+  choice one("Stay in the elevator.") if "Dumb" == 6
+    {
+        response "Really, you're just gonna sit there?"
+    }
+    choice two("Leave and scan your surroundings.") empty "yes"
+    {
+        response "You don't see anything suspicious...you dash away."
+    }

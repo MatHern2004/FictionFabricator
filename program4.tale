@@ -3,9 +3,9 @@ personality "Strong" = 5
 personality "Dumb" = 6
 item "Key" = true
 say "Let's go!"
-if roll = 5
+if roll = 1
 {
-    roll 5
+    roll 1
     addto "Strong" 
 }
 edit "Mathew"

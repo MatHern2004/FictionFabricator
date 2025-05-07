@@ -1,0 +1,6 @@
+name "F. Buzz"
+personality "Mathelicious"
+item "calculator" = true
+fizzbuzzeth(3, 5, "Fizz", "Buzz")
+//Editing with a number as the name won't work, because why have numbers in your name?
+edit "F. Buzz"

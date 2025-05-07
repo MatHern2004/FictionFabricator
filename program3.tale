@@ -1,10 +1,9 @@
-name "Sean"
-personality "Sean"
-item "dog" = true
-edit "Sean"
+name "Logan"
+personality "Logan"
+item "Nothing" = true
+edit "Logan"
 setting boat
 choice one("Jump out of the boat?") empty "yes"
 { 
     response "You jump out of the boat and drown, The End."
 }
-//All you need is one choice, no need for two!
